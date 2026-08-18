@@ -38,16 +38,7 @@ module.exports = async function handler(req, res) {
       colors[name] = match ? match[1] : null;
     }
 
-    res.status(200).json({
-      fields,
-      colors,
-      _debug: {
-        contentLength: content.length,
-        hasHeadlineMarker: content.includes('data-edit="headline"'),
-        repoEnv: process.env.GITHUB_REPO || null,
-        branchEnv: process.env.GITHUB_BRANCH || null,
-      },
-    });
+    res.status(200).json({ fields, colors });
   } catch (err) {
     res.status(500).json({ error: String(err.message || err) });
   }
