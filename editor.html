@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor — Profit Code</title>
+<style>
+  :root{--ink:#0A0E22;--bone:#F4F1EC;--paper:#fff;--violet:#8B45FF;--lime:#CDFF4A;--muted:#8B90AE;--red:#FF4D6D;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bone);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:24px}
+  .wrap{max-width:720px;margin:0 auto}
+  h1{font-size:22px;margin-bottom:4px}
+  p.hint{color:var(--muted);font-size:13px;margin-top:0}
+  .card{background:var(--paper);border:2px solid var(--ink);border-radius:14px;padding:20px;margin-bottom:18px;box-shadow:4px 4px 0 var(--ink)}
+  label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;color:var(--muted)}
+  input[type=text], textarea{width:100%;padding:10px 12px;border:2px solid var(--ink);border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:16px}
+  textarea{min-height:70px;resize:vertical}
+  .row{display:flex;gap:16px;flex-wrap:wrap}
+  .row .field{flex:1;min-width:160px}
+  .color-field{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .color-field input[type=color]{width:44px;height:36px;border:2px solid var(--ink);border-radius:8px;padding:0;cursor:pointer}
+  .color-field input[type=text]{margin:0;width:110px}
+  button{font-family:inherit;font-weight:800;text-transform:uppercase;font-size:14px;border:2px solid var(--ink);border-radius:10px;padding:14px 18px;cursor:pointer;background:var(--lime);box-shadow:3px 3px 0 var(--ink)}
+  button:hover{transform:translate(-1px,-1px)}
+  button:disabled{opacity:.5;cursor:not-allowed}
+  #gate{max-width:360px;margin:80px auto}
+  #gate input{margin-bottom:12px}
+  #status{margin-top:14px;font-size:14px;font-weight:700}
+  #status.ok{color:#1a7f37}
+  #status.err{color:var(--red)}
+  .section-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--violet);margin:0 0 12px}
+</style>
+</head>
+<body>
+
+<div id="gate" class="card">
+  <label for="pw">Contraseña del editor</label>
+  <input type="text" id="pw" placeholder="••••••••">
+  <button id="enter">Entrar</button>
+  <div id="gate-status" style="margin-top:10px;font-size:13px;color:var(--red)"></div>
+</div>
+
+<div class="wrap" id="app" style="display:none">
+  <h1>Editor — Profit Code</h1>
+  <p class="hint">Cambia el copy y los colores de los botones. Al guardar, se hace commit directo al repo y Vercel redespliega solo (tarda ~30-60s en verse reflejado).</p>
+
+  <div class="card">
+    <p class="section-title">Encabezado</p>
+    <label for="headline">Titular (puedes dejar &lt;mark&gt;...&lt;/mark&gt; para mantener el resaltado)</label>
+    <textarea id="headline" data-field="headline"></textarea>
+    <label for="subheadline">Subtítulo</label>
+    <textarea id="subheadline" data-field="subheadline"></textarea>
+  </div>
+
+  <div class="card">
+    <p class="section-title">Botón principal</p>
+    <label for="cta_principal">Texto del botón principal (aparece varias veces en la página)</label>
+    <input type="text" id="cta_principal" data-field="cta_principal">
+  </div>
+
+  <div class="card">
+    <p class="section-title">Precios y planes</p>
+    <div class="row">
+      <div class="field">
+        <label for="price_2pagos">Precio — 2 pagos</label>
+        <input type="text" id="price_2pagos" data-field="price_2pagos">
+        <label for="cta_2pagos">Texto botón</label>
+        <input type="text" id="cta_2pagos" data-field="cta_2pagos">
+      </div>
+      <div class="field">
+        <label for="price_unico">Precio — pago único</label>
+        <input type="text" id="price_unico" data-field="price_unico">
+        <label for="cta_unico">Texto botón</label>
+        <input type="text" id="cta_unico" data-field="cta_unico">
+      </div>
+      <div class="field">
+        <label for="price_3pagos">Precio — 3 pagos</label>
+        <input type="text" id="price_3pagos" data-field="price_3pagos">
+        <label for="cta_3pagos">Texto botón</label>
+        <input type="text" id="cta_3pagos" data-field="cta_3pagos">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="section-title">Testimonios</p>
+    <label for="testimonio_susan">Cita de Susana</label>
+    <textarea id="testimonio_susan" data-field="testimonio_susan"></textarea>
+    <label for="testimonio_ervin">Cita de Ervin</label>
+    <textarea id="testimonio_ervin" data-field="testimonio_ervin"></textarea>
+  </div>
+
+  <div class="card">
+    <p class="section-title">Colores de los botones</p>
+    <div class="color-field">
+      <input type="color" id="c_lime" data-color="lime">
+      <input type="text" id="c_lime_hex" data-color-hex="lime">
+      <span>Fondo del botón principal</span>
+    </div>
+    <div class="color-field">
+      <input type="color" id="c_violet" data-color="violet">
+      <input type="text" id="c_violet_hex" data-color-hex="violet">
+      <span>Morado de acento</span>
+    </div>
+    <div class="color-field">
+      <input type="color" id="c_violet_d" data-color="violet-d">
+      <input type="text" id="c_violet_d_hex" data-color-hex="violet-d">
+      <span>Morado oscuro (variante)</span>
+    </div>
+  </div>
+
+  <button id="save">Guardar cambios</button>
+  <div id="status"></div>
+</div>
+
+<script>
+let password = '';
+
+function setStatus(el, msg, cls) {
+  el.textContent = msg;
+  el.className = cls || '';
+}
+
+document.getElementById('enter').addEventListener('click', async () => {
+  password = document.getElementById('pw').value;
+  const gateStatus = document.getElementById('gate-status');
+  gateStatus.textContent = 'Cargando...';
+  try {
+    const res = await fetch('/api/content', { headers: { 'x-editor-password': password } });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      gateStatus.textContent = body.error || 'Error al entrar';
+      return;
+    }
+    const data = await res.json();
+    for (const [key, value] of Object.entries(data.fields || {})) {
+      const el = document.querySelector(`[data-field="${key}"]`);
+      if (el && value !== null) el.value = value;
+    }
+    for (const [name, hex] of Object.entries(data.colors || {})) {
+      if (!hex) continue;
+      const colorInput = document.querySelector(`[data-color="${name}"]`);
+      const hexInput = document.querySelector(`[data-color-hex="${name}"]`);
+      if (colorInput) colorInput.value = hex;
+      if (hexInput) hexInput.value = hex;
+    }
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    sessionStorage.setItem('editorPassword', password);
+  } catch (e) {
+    gateStatus.textContent = 'No se pudo conectar: ' + e.message;
+  }
+});
+
+document.querySelectorAll('input[type=color]').forEach((input) => {
+  input.addEventListener('input', () => {
+    const name = input.dataset.color;
+    document.querySelector(`[data-color-hex="${name}"]`).value = input.value;
+  });
+});
+document.querySelectorAll('[data-color-hex]').forEach((input) => {
+  input.addEventListener('input', () => {
+    const name = input.dataset.colorHex;
+    const colorInput = document.querySelector(`[data-color="${name}"]`);
+    if (/^#[0-9A-Fa-f]{6}$/.test(input.value)) colorInput.value = input.value;
+  });
+});
+
+document.getElementById('save').addEventListener('click', async () => {
+  const statusEl = document.getElementById('status');
+  const btn = document.getElementById('save');
+  btn.disabled = true;
+  setStatus(statusEl, 'Guardando...', '');
+
+  const fields = {};
+  document.querySelectorAll('[data-field]').forEach((el) => { fields[el.dataset.field] = el.value; });
+  const colors = {};
+  document.querySelectorAll('[data-color-hex]').forEach((el) => { colors[el.dataset.colorHex] = el.value; });
+
+  try {
+    const res = await fetch('/api/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-editor-password': password },
+      body: JSON.stringify({ fields, colors }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      setStatus(statusEl, body.error || 'Error al guardar', 'err');
+    } else {
+      setStatus(statusEl, 'Guardado. Vercel está redesplegando, dale ~1 minuto.', 'ok');
+    }
+  } catch (e) {
+    setStatus(statusEl, 'No se pudo guardar: ' + e.message, 'err');
+  }
+  btn.disabled = false;
+});
+
+const saved = sessionStorage.getItem('editorPassword');
+if (saved) {
+  document.getElementById('pw').value = saved;
+  document.getElementById('enter').click();
+}
+</script>
+</body>
+</html>
